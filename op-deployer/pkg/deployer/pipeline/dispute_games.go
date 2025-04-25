@@ -58,7 +58,7 @@ func deployDisputeGame(
 	if game.UseCustomOracle {
 		lgr.Info("deploying custom oracle")
 
-		out, err := opcm.DeployPreimageOracle(env.L1ScriptHost, opcm.DeployPreimageOracleInput{
+		out, err := DeployPreimageOracle(env.L1ScriptHost, DeployPreimageOracleInput{
 			MinProposalSize: new(big.Int).SetUint64(game.OracleMinProposalSize),
 			ChallengePeriod: new(big.Int).SetUint64(game.OracleChallengePeriodSeconds),
 		})
@@ -76,7 +76,7 @@ func deployDisputeGame(
 	var vmAddr common.Address
 	switch game.VMType {
 	case state.VMTypeAlphabet:
-		out, err := opcm.DeployAlphabetVM(env.L1ScriptHost, opcm.DeployAlphabetVMInput{
+		out, err := DeployAlphabetVM(env.L1ScriptHost, DeployAlphabetVMInput{
 			AbsolutePrestate: game.DisputeAbsolutePrestate,
 			PreimageOracle:   oracleAddr,
 		})
@@ -90,7 +90,7 @@ func deployDisputeGame(
 			mipsVersion = 6
 		}
 
-		out, err := opcm.DeployMIPS(env.L1ScriptHost, opcm.DeployMIPSInput{
+		out, err := DeployMIPS(env.L1ScriptHost, DeployMIPSInput{
 			MipsVersion:    uint64(mipsVersion),
 			PreimageOracle: oracleAddr,
 		})
@@ -104,7 +104,7 @@ func deployDisputeGame(
 	lgr.Info("vm deployed", "vmAddr", vmAddr)
 
 	lgr.Info("deploying dispute game")
-	out, err := opcm.DeployDisputeGame(env.L1ScriptHost, opcm.DeployDisputeGameInput{
+	out, err := DeployDisputeGame(env.L1ScriptHost, DeployDisputeGameInput{
 		Release:                  "dev",
 		VmAddress:                vmAddr,
 		GameKind:                 "FaultDisputeGame",
@@ -126,7 +126,7 @@ func deployDisputeGame(
 	lgr.Info("dispute game deployed", "impl", out.DisputeGameImpl)
 
 	lgr.Info("setting dispute game impl on factory", "respected", game.MakeRespected)
-	sdgiInput := opcm.SetDisputeGameImplInput{
+	sdgiInput := SetDisputeGameImplInput{
 		Factory:  thisState.DisputeGameFactoryProxyAddress,
 		Impl:     out.DisputeGameImpl,
 		GameType: game.DisputeGameType,
@@ -134,7 +134,7 @@ func deployDisputeGame(
 	if game.MakeRespected {
 		sdgiInput.AnchorStateRegistry = thisState.AnchorStateRegistryProxyAddress
 	}
-	if err := opcm.SetDisputeGameImpl(
+	if err := SetDisputeGameImpl(
 		env.L1ScriptHost,
 		sdgiInput,
 	); err != nil {
